@@ -1,0 +1,13 @@
+{
+    "java.project.sourcePaths": ["src"],
+    "java.project.outputPath": "bin",
+    "java.project.referencedLibraries": {
+        "include": [
+            "lib/**/*.jar",
+            "c:\\Users\\a22rodrigodga\\Documents\\json-simple-1.1.1.jar"
+        ],
+        "exclude": [
+            "lib/json-20230618.jar"
+        ]
+    }
+}
