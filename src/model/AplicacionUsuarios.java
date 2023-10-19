@@ -173,13 +173,6 @@ public class AplicacionUsuarios {
 		JSONObject usuario = obtenerUsuarioJson(nombre);
 		boolean valido = false;
 		if (usuario != null) {
-			if (usuario.get("nombre").equals(nombre)) {
-				valido = true;
-			} else if (!usuario.get("nombre").equals(nombre)) {
-				JOptionPane.showMessageDialog(null, "Nombre incorrecto ", "Error",
-						JOptionPane.ERROR_MESSAGE);
-				valido = false;
-			}
 
 			if (usuario.get("contrasena").equals(contraseña)) {
 				valido = true;
@@ -192,6 +185,7 @@ public class AplicacionUsuarios {
 			JOptionPane.showMessageDialog(null, "El usuario no existe ", "Error",
 					JOptionPane.ERROR_MESSAGE);
 			valido = false;
+
 		}
 		return valido;
 
