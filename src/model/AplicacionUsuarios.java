@@ -1,10 +1,10 @@
 package model;
 
 import java.awt.Dimension;
-import java.io.IOException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 
 import gui.VentanaBorrarUsuario;
@@ -14,6 +14,9 @@ import gui.VentanaInicioSesion;
 import gui.VentanaMenuUsuario;
 import gui.VentanaVerUsuario;
 import java.nio.file.*;
+
+import javax.swing.JOptionPane;
+
 import java.io.*;
 
 public class AplicacionUsuarios {
@@ -26,6 +29,8 @@ public class AplicacionUsuarios {
 	private VentanaCambiarContraseña ventanaCambiarContraseña;
 	private VentanaBorrarUsuario ventanaBorrarUsuario;
 	private JSONArray usuarios_registrados = new JSONArray();
+	private JSONParser parser = new JSONParser();
+	JSONObject usuario = new JSONObject();
 
 	private void crearFicheroJson() {
 		Path fichero_json = Paths.get(RUTA_FICHERO);
@@ -40,8 +45,9 @@ public class AplicacionUsuarios {
 		}
 	}
 
+	// Crear variable global para no acceder a disco todo el rato
 	private JSONArray obtenerUsuariosJson() {
-		JSONParser parser = new JSONParser();
+
 		try {
 			Object obj = parser.parse(new FileReader(RUTA_FICHERO));
 			usuarios_registrados = (JSONArray) obj;
@@ -60,7 +66,21 @@ public class AplicacionUsuarios {
 	}
 
 	private JSONObject obtenerUsuarioJson(String nombreUsuario) {
+		try {
+			Object obj = parser.parse(new FileReader(RUTA_FICHERO));
+			usuarios_registrados = (JSONArray) obj;
+			for (Object object : usuarios_registrados) {
+				usuario = (JSONObject) object;
+				if (usuario.containsValue(nombreUsuario)) {
 
+					return usuario;
+				}
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+
+		return null;
 	}
 
 	public void ejecutar() {
@@ -74,12 +94,15 @@ public class AplicacionUsuarios {
 	}
 
 	public void iniciarSesion(String nombreUsuario, String contraseñaUsuario) {
-		ventanaMenuUsuario = new VentanaMenuUsuario(this, nombreUsuario);
+		if (obtenerUsuarioJson(nombreUsuario) != null &&
+				comprobarContraseña(nombreUsuario, contraseñaUsuario)) {
+			ventanaMenuUsuario = new VentanaMenuUsuario(this, nombreUsuario);
+			ventanaMenuUsuario.setVisible(true);
+			ventanaMenuUsuario.setSize(500, 400);
+			ventanaInicioSesion.setLocationRelativeTo(null);
+			ventanaInicioSesion.dispose();
+		}
 
-		ventanaMenuUsuario.setVisible(true);
-		ventanaMenuUsuario.setSize(500, 400);
-		ventanaInicioSesion.setLocationRelativeTo(null);
-		ventanaInicioSesion.dispose();
 	}
 
 	public void cerrarSesion() {
@@ -91,20 +114,25 @@ public class AplicacionUsuarios {
 	}
 
 	public void crearUsuario(String nombre, String contrasena, String edad, String correo) {
+		// obtenerUsuarioJson(nombre);
+		if (obtenerUsuarioJson(nombre) == null) {
+			JSONObject object_User = new JSONObject();
+			object_User.put("nombre", nombre);
+			object_User.put("contrasena", contrasena);
+			object_User.put("edad", edad);
+			object_User.put("correo", correo);
 
-		JSONObject object_User = new JSONObject();
-		object_User.put("nombre", nombre);
-		object_User.put("contrasena", contrasena);
-		object_User.put("edad", edad);
-		object_User.put("correo", correo);
+			usuarios_registrados.add(object_User);
+			try (FileWriter f = new FileWriter(RUTA_FICHERO)) {
+				f.write(usuarios_registrados.toString());
+				f.flush();
 
-		usuarios_registrados.add(object_User);
-		try (FileWriter f = new FileWriter(RUTA_FICHERO)) {
-			f.write(usuarios_registrados.toString());
-			f.flush();
-
-		} catch (Exception e) {
-			System.out.println("Error crear usuario : " + e.getMessage());
+			} catch (Exception e) {
+				System.out.println("Error crear usuario : " + e.getMessage());
+			}
+		} else {
+			JOptionPane.showMessageDialog(null, "No puede haber usuarios con el mismo nombre ", "Error",
+					JOptionPane.ERROR_MESSAGE);
 		}
 		obtenerUsuariosJson();
 	}
@@ -113,8 +141,12 @@ public class AplicacionUsuarios {
 
 	}
 
+	// TODO
 	public void borrarUsuario(String nombreUsuario) {
+		for (Object object : usuarios_registrados) {
+			JSONObject borra_usuario = (JSONObject) object;
 
+		}
 	}
 
 	public void mostrarVentanaCrearUsuario() {
@@ -134,6 +166,34 @@ public class AplicacionUsuarios {
 	}
 
 	public void mostrarVentanaBorrarUsuario(String nombreUsuario) {
+
+	}
+
+	public Boolean comprobarContraseña(String nombre, String contraseña) {
+		JSONObject usuario = obtenerUsuarioJson(nombre);
+		boolean valido = false;
+		if (usuario != null) {
+			if (usuario.get("nombre").equals(nombre)) {
+				valido = true;
+			} else if (!usuario.get("nombre").equals(nombre)) {
+				JOptionPane.showMessageDialog(null, "Nombre incorrecto ", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				valido = false;
+			}
+
+			if (usuario.get("contrasena").equals(contraseña)) {
+				valido = true;
+			} else if (!usuario.get("contrasena").equals(contraseña)) {
+				JOptionPane.showMessageDialog(null, "Contraseña incorrecta ", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				valido = false;
+			}
+		} else {
+			JOptionPane.showMessageDialog(null, "El usuario no existe ", "Error",
+					JOptionPane.ERROR_MESSAGE);
+			valido = false;
+		}
+		return valido;
 
 	}
 
