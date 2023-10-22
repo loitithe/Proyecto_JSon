@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
@@ -60,7 +61,25 @@ public class VentanaCambiarContraseña extends JFrame implements ActionListener 
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		JButton boton_pulsado = (JButton) e.getSource();
+		if (boton_pulsado == btnCambiarContraseña) {
+			app.cambiarContraseña(nombreUsuario, textoNuevoContraseña.getText());
+			JOptionPane.showMessageDialog(null, "Contrasena cambiada correctamente", "Mensaje",
+					JOptionPane.INFORMATION_MESSAGE);
 
+			VentanaMenuUsuario ventanaMenuUsuario = new VentanaMenuUsuario(app, nombreUsuario);
+			ventanaMenuUsuario.setVisible(true);
+			ventanaMenuUsuario.setSize(400, 400);
+			ventanaMenuUsuario.setLocationRelativeTo(null);
+			this.dispose();
+		}
+		if (boton_pulsado == btnCancelar) {
+			VentanaMenuUsuario ventanaMenuUsuario = new VentanaMenuUsuario(app, nombreUsuario);
+			ventanaMenuUsuario.setVisible(true);
+			ventanaMenuUsuario.setSize(400, 400);
+			ventanaMenuUsuario.setLocationRelativeTo(null);
+			this.dispose();
+		}
 	}
 
 }

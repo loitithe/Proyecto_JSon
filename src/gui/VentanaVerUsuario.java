@@ -88,6 +88,13 @@ public class VentanaVerUsuario extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-
+		JButton boton_pulsado = (JButton)e.getSource();
+		if (boton_pulsado == btnVolver) {
+		VentanaMenuUsuario	ventanaMenuUsuario = new VentanaMenuUsuario(app, datoNombre.getText());
+		ventanaMenuUsuario.setVisible(true);
+		ventanaMenuUsuario.setSize(400, 400);
+		ventanaMenuUsuario.setLocationRelativeTo(null);
+		this.dispose();
+		}
 	}
 }

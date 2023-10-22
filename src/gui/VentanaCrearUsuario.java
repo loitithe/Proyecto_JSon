@@ -105,9 +105,7 @@ public class VentanaCrearUsuario extends JFrame implements ActionListener {
 		if (btn_pulsado == btnCancelar) {
 			app.ejecutar();
 			this.dispose();
-		}
-
-		if (btn_pulsado == btnCrear
+		} else if (btn_pulsado == btnCrear
 				&& comprobarCrearUsuario() == true) {
 			app.crearUsuario(textoNombre.getText(), textoContraseña.getText(), textoEdad.getText(),
 					textoCorreo.getText());
