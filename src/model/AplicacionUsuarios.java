@@ -33,7 +33,7 @@ public class AplicacionUsuarios {
 
 	private JSONArray usuarios_registrados = new JSONArray();
 	private JSONParser parser = new JSONParser();
-	JSONObject usuario;
+	private JSONObject usuario;
 
 	/*
 	 * Crea el fichero donde se guardaran los registros de usuario
@@ -70,10 +70,12 @@ public class AplicacionUsuarios {
 		return usuarios_registrados;
 	}
 
-	private int obtenerPosicionUsuario(String nombreUsuario, JSONArray usuarios) {
-
-	}
-
+	/**
+	 * 
+	 * @param nombreUsuario string a buscar
+	 * @return Devuelve un jsonObject si recupera el usuario buscado,sino devuelve
+	 *         null
+	 */
 	private JSONObject obtenerUsuarioJson(String nombreUsuario) {
 		try {
 			Object obj = parser.parse(new FileReader(RUTA_FICHERO));
@@ -81,7 +83,6 @@ public class AplicacionUsuarios {
 			for (Object object : usuarios_registrados) {
 				usuario = (JSONObject) object;
 				if (usuario.containsValue(nombreUsuario)) {
-
 					return usuario;
 				}
 			}
@@ -92,12 +93,15 @@ public class AplicacionUsuarios {
 		return null;
 	}
 
+	/**
+	 * Inicia la aplicacion
+	 */
 	public void ejecutar() {
 		crearFicheroJson();
 		// mostrarVentana(ventanaInicioSesion);
 		ventanaInicioSesion = new VentanaInicioSesion(this);
 		ventanaInicioSesion.setVisible(true);
-		ventanaInicioSesion.setSize(new Dimension(800, 600));
+		ventanaInicioSesion.setSize(new Dimension(500, 400));
 		ventanaInicioSesion.setLocationRelativeTo(null);
 		//
 		for (Object object : usuarios_registrados) {
@@ -105,9 +109,13 @@ public class AplicacionUsuarios {
 		}
 	}
 
+	/**
+	 * 
+	 * @param nombreUsuario
+	 * @param contraseñaUsuario
+	 */
 	public void iniciarSesion(String nombreUsuario, String contraseñaUsuario) {
-		if (obtenerUsuarioJson(nombreUsuario) != null &&
-				comprobarContraseña(nombreUsuario, contraseñaUsuario)) {
+		if (comprobarContraseña(nombreUsuario, contraseñaUsuario)) {
 			ventanaMenuUsuario = new VentanaMenuUsuario(this, nombreUsuario);
 			ventanaMenuUsuario.setVisible(true);
 			ventanaMenuUsuario.setSize(500, 400);
@@ -117,6 +125,9 @@ public class AplicacionUsuarios {
 
 	}
 
+	/*
+	 * 
+	 */
 	public void cerrarSesion() {
 		ventanaInicioSesion = new VentanaInicioSesion(this);
 		ventanaInicioSesion.setVisible(true);
@@ -125,15 +136,22 @@ public class AplicacionUsuarios {
 		ventanaMenuUsuario.dispose();
 	}
 
+	/**
+	 * Si todos los campos son validos,escribe un nuevo JSONObject al fichero
+	 * 
+	 * @param nombre
+	 * @param contrasena
+	 * @param edad
+	 * @param correo
+	 */
 	public void crearUsuario(String nombre, String contrasena, String edad, String correo) {
-		// obtenerUsuarioJson(nombre);
-		if (obtenerUsuarioJson(nombre) == null) {
+
+		if (comprobarCrearUsuario(edad, nombre, correo, contrasena)) {
 			usuario = new JSONObject();
 			usuario.put("nombre", nombre.trim());
 			usuario.put("contrasena", contrasena.trim());
 			usuario.put("edad", edad.trim());
 			usuario.put("correo", correo.trim());
-
 			usuarios_registrados.add(usuario);
 
 			try (FileWriter f = new FileWriter(RUTA_FICHERO)) {
@@ -143,17 +161,22 @@ public class AplicacionUsuarios {
 			} catch (Exception e) {
 				System.out.println("Error crear usuario : " + e.getMessage());
 			}
-		} else {
-			JOptionPane.showMessageDialog(null, "No puede haber usuarios con el mismo nombre ", "Error",
-					JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Usuario creado correctamente", "Usuario creado",
+					JOptionPane.INFORMATION_MESSAGE);
 		}
-		obtenerUsuariosJson();
+
 	}
 
+	/**
+	 * Recorre la lista de usuarios registrados y actualiza el fichero json
+	 * 
+	 * @param nombreUsuario
+	 * @param nuevaContraseña
+	 */
 	public void cambiarContraseña(String nombreUsuario, String nuevaContraseña) {
 		for (int i = 0; i < usuarios_registrados.size(); i++) {
-			JSONObject cambiapass_usuario = (JSONObject) usuarios_registrados.get(i);
-			if (cambiapass_usuario.get("nombre").equals(nombreUsuario)) {
+			if (((JSONObject) usuarios_registrados.get(i)).get("nombre").equals(nombreUsuario)) {
+				JSONObject cambiapass_usuario = (JSONObject) usuarios_registrados.get(i);
 				cambiapass_usuario.replace("contrasena", nuevaContraseña.trim());
 				try (FileWriter f = new FileWriter(RUTA_FICHERO)) {
 					f.write(usuarios_registrados.toString());
@@ -165,9 +188,14 @@ public class AplicacionUsuarios {
 			}
 
 		}
+
 	}
 
-	// TODO
+	/**
+	 * Elimina un usuario si existe en el fichero
+	 * 
+	 * @param nombreUsuario
+	 */
 	public void borrarUsuario(String nombreUsuario) {
 
 		for (int i = 0; i < usuarios_registrados.size(); i++) {
@@ -184,18 +212,22 @@ public class AplicacionUsuarios {
 				} catch (Exception e) {
 					System.out.println("Error crear usuario : " + e.getMessage());
 				}
-
 			}
-
 		}
-
 	}
 
+	/**
+	 * 
+	 */
 	public void mostrarVentanaCrearUsuario() {
 		ventanaCrearUsuario = new VentanaCrearUsuario(this);
 		mostrarVentana(ventanaCrearUsuario);
 	}
 
+	/**
+	 * 
+	 * @param nombreUsuario
+	 */
 	public void mostrarVentanaVerUsuario(String nombreUsuario) {
 		usuario = obtenerUsuarioJson(nombreUsuario);
 		if (usuario != null) {
@@ -208,22 +240,40 @@ public class AplicacionUsuarios {
 
 	}
 
+	/**
+	 * 
+	 * @param nombreUsuario
+	 */
 	public void mostrarVentanaCambiarContraseña(String nombreUsuario) {
 		ventanaCambiarContraseña = new VentanaCambiarContraseña(this, nombreUsuario);
 		mostrarVentana(ventanaCambiarContraseña);
 	}
 
+	/**
+	 * 
+	 * @param nombreUsuario
+	 */
 	public void mostrarVentanaBorrarUsuario(String nombreUsuario) {
 		ventanaBorrarUsuario = new VentanaBorrarUsuario(this, nombreUsuario);
 		mostrarVentana(ventanaBorrarUsuario);
 
 	}
 
+	/**
+	 * 
+	 * @param nombre
+	 * @param contraseña
+	 * @return
+	 */
 	public Boolean comprobarContraseña(String nombre, String contraseña) {
-
-		usuario = obtenerUsuarioJson(nombre);
+		if (obtenerUsuarioJson(nombre) != null) {
+			usuario = obtenerUsuarioJson(nombre);
+		} else {
+			JOptionPane.showMessageDialog(null, "El usuario no existe ", "Error",
+					JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
 		if (usuario.get("nombre").equals(nombre)) {
-
 			if (usuario.get("contrasena").equals(contraseña)) {
 				return true;
 			} else if (!usuario.get("contrasena").equals(contraseña)) {
@@ -240,6 +290,10 @@ public class AplicacionUsuarios {
 
 	}
 
+	/**
+	 * 
+	 * @param ventana
+	 */
 	private void mostrarVentana(JFrame ventana) {
 		ventana.setVisible(true);
 		ventana.setSize(new Dimension(400, 400));
@@ -250,6 +304,43 @@ public class AplicacionUsuarios {
 		if (ventanaMenuUsuario != null) {
 			ventanaMenuUsuario.dispose();
 		}
+	}
+
+	/**
+	 * 
+	 * @param edadIn
+	 * @param nombreIn
+	 * @param correoIn
+	 * @param contraseñaIn
+	 * @return
+	 */
+	public Boolean comprobarCrearUsuario(String edadIn, String nombreIn, String correoIn, String contraseñaIn) {
+		String mensaje = "";
+		if (obtenerUsuarioJson(nombreIn) != null) {
+			JOptionPane.showMessageDialog(null, "El usuario ya existe", "Error",
+					JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		if (!correoIn.contains("@")) {
+			JOptionPane.showMessageDialog(null, "El campo correo debe tener una @", "Error",
+					JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		try {
+			int edad = Integer.parseInt(edadIn);
+			if (edad <= 0) {
+				JOptionPane.showMessageDialog(null, "El campo edad debe ser un numero positivo", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return false;
+			}
+		} catch (NumberFormatException e) {
+			JOptionPane.showMessageDialog(null, "El campo edad debe ser un campo numerico", "Error",
+					JOptionPane.ERROR_MESSAGE);
+			System.out.println(e.getMessage());
+			return false;
+		}
+
+		return true;
 	}
 
 }

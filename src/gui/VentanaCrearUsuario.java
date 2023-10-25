@@ -106,17 +106,17 @@ public class VentanaCrearUsuario extends JFrame implements ActionListener {
 			app.ejecutar();
 			this.dispose();
 		} else if (btn_pulsado == btnCrear
-				&& comprobarCrearUsuario() == true) {
+				&& comprobarCamposVacios() == true) {
 			app.crearUsuario(textoNombre.getText(), textoContraseña.getText(), textoEdad.getText(),
 					textoCorreo.getText());
 
-		} else if (comprobarCrearUsuario() == false) {
+		} else if (comprobarCamposVacios() == false) {
 			JOptionPane.showMessageDialog(null, "No puede haber campos vacios ", "Error", JOptionPane.ERROR_MESSAGE);
 		}
 
 	}
 
-	public Boolean comprobarCrearUsuario() {
+	public Boolean comprobarCamposVacios() {
 
 		if (textoNombre.getText().length() == 0) {
 			return false;
